@@ -19,8 +19,9 @@ const verifyLogin = (role, email, password) => {
   const value = [email];
   return new Promise((resolve, reject) => {
     db.query(query, value, async (err, results) => {
+      if(err)console.log(err)
       if (err) reject(err);
-      console.log("db", table, results);
+
       if (results != undefined && results.length >= 1) {
         if (
           !results ||
@@ -39,34 +40,35 @@ const verifyLogin = (role, email, password) => {
 const verifySignUp = (email, password, passwordConfirm) => {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT email from users WHERE email = ?",
+      "SELECT * from users WHERE email = ?",
       [email],
       (err, results) => {
-        if (err) reject(err);
-        if(!results) {
-          
-          console.log(results,email, "results undefined");
-          
-          resolve(true)
-        } else if (results.length > 0) {
-          console.log("results, with same email", results);
+        if (err) {
+          console.log(err)
+          reject(err);
+          return;
+        }
+
+        if (!results || results.length === 0) {
+          // No user found with the provided email
+          if (password !== passwordConfirm) {
+            resolve(false); // Passwords don't match
+          } else {
+            resolve(true); // No existing user with the provided email and passwords match
+          }
+        } else {
+          // User with the same email already exists
           resolve(false);
-        } else if (password != passwordConfirm) {
-          console.log("different password", password, passwordConfirm);
-          resolve(false);
-        } else resolve(true);
-        
+        }
       }
     );
   });
 };
 
+
 const createAndSignIn = async (userAccount) => {
-  console.log("creating user cookie", userAccount);
   const savedUser = await userService.createUser(userAccount);
-  console.log("saved user", savedUser)
   const token = createToken({ user: userAccount.firstName, id: savedUser[0].id, role: "user" });
-  console.log("created", savedUser, token);
   return { token, user: savedUser };
 };
 

@@ -56,9 +56,9 @@ export const Signup = () => {
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover"
-      style={{
-        backgroundImage: "url('https://source.unsplash.com/1600x900/?medical')",
-      }}
+      // style={{
+      //   backgroundImage: "url('https://source.unsplash.com/1600x900/?medical')",
+      // }}
     >
       <div className="min-h-screen flex items-center justify-center mt-6 mb-6 bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
@@ -194,9 +194,9 @@ export const Signup = () => {
             </div>
           </form>
           <div className="mt-6 text-center">
-            <p className="text-gray-800">Don't have an account?</p>
-            <a href="#" className="text-blue-500 hover:underline">
-              Sign Up
+            <p className="text-gray-800">Have an account?</p>
+            <a href="/Login" className="text-blue-500 hover:underline">
+              Login
             </a>
           </div>
           <div className="text-center text-sm text-gray-600">

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+
 function DoctorProfile() {
     const [data, setData] = useState({
 
     });
-    const [filename, setFileName] = useState('');
     const [visits, setVisits] = useState([]);
     const [history, setHistory] = useState({
 
@@ -16,6 +16,8 @@ function DoctorProfile() {
 
     });
     const [isempty, setIsEmpty] = useState(true);
+    const [filename, setFileName] = useState('');
+
 
     const [error, setError] = useState('')
     const handleChange = (e) => {
@@ -39,39 +41,40 @@ function DoctorProfile() {
         fetch(`http://localhost:3001/users/profile`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
+            'Content-Type': 'application/json'
             },
             credentials: "include"
         })
-            .then(response => response.json())
-            .then(data => {
-                console.log("user profile", data);
-                // setEmail(data.email)
-                // setFirstname(data.firstName)
-                // setPhone(data.phone)
-                setData(data);
-
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        fetch("http://localhost:3001/doctorProfile", {
-            method: 'POST',
-            credentials: "include",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                token: document.cookie
-
-            })
+        .then(response => response.json())
+        .then(data => {
+            console.log("user profile",data);
+            // setEmail(data.email)
+            // setFirstname(data.firstName)
+            // setPhone(data.phone)
+            setData(data);
 
         })
-            .then(res => res.json())
-            .then(response => {
-                console.log(response);
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+        // fetch("http://localhost:3001/doctorProfile", {
+        //     method: 'POST',
+        //     credentials: "include",
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({
+        //         token: document.cookie
 
-            })
+        //     })
+
+        // })
+        //     .then(res => res.json())
+        //     .then(response => {
+        //         console.log(response);
+                
+        //     })
+        // mine
 
         fetch("http://localhost:3001/dailyvisits", {
             method: 'POST',
@@ -103,6 +106,7 @@ function DoctorProfile() {
         const token = document.cookie;
         fetch("http://localhost:3001/labdocresult", {
             method: 'POST',
+            credentials: "include",
             body: JSON.stringify({
                 token: token
             }),
@@ -122,9 +126,6 @@ function DoctorProfile() {
             })
 
     }, [])
-    const handleDownload = () => {
-        window.open(`http://localhost:3001/download/${filename}`, '_blank');
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -152,19 +153,19 @@ function DoctorProfile() {
                 console.log(data);
                 if (!data.status === "success") {
                     setError("request unsuccessful");
-                    alert("Something went wrong")
 
                 }
             })
     }
     const handleSubmitY = (e) => {
         e.preventDefault()
+        // mine
 
         let sentData = formDataY;
         sentData["token"] = document.cookie;
 
 
-        fetch("http://localhost:3001/patientmedhistory", {
+        fetch("http://localhost:3001/patienthistory", {
             method: 'POST',
             credentials: "include",
 
@@ -174,28 +175,32 @@ function DoctorProfile() {
             body: JSON.stringify(sentData),
         }).then(res => res.json())
             .then(data => {
+                console.log(data);
                 if (data.status === "error") {
                     setError("request unsuccessful");
-                    alert("Something went wrong")
-
-                }
-                else {
-                    alert("Successfully Recorded")
-                }
+                    alert("Something went wrong!")
+                } else alert("History Successful!")
+                
                 // else{
 
                 // }
             })
     }
+    const handleDownload = () => {
+        window.open(`http://localhost:3001/download/${filename}`, '_blank');
+    };
+
 
 
 
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-cover" style={{
-            backgroundImage: "url('https://source.unsplash.com/1600x900/?medical')",
-        }}>
-
+        <div className="min-h-screen flex flex-col items-center justify-center bg-cover"
+        //  style={{
+        //     backgroundImage: "url('https://source.unsplash.com/1600x900/?medical')",
+        // }}
+        >
+            
 
             <div>
                 <h2 className="text-center text-3xl font-bold text-gray-800">
@@ -220,15 +225,12 @@ function DoctorProfile() {
             <h2 className="text-center mt-8 text-3xl font-bold text-gray-800">
                 Today's Visits
             </h2>
-
-            <div className="max-w-4xl mx-auto my-4">
+            <div className="max-w-4xl mx-auto my-4 w-lvw">
                 <table class="min-w-full bg-white border border-gray-300">
                     <thead>
                         <tr>
-                            <th class="py-2 px-4 border-b">Patient Id</th>
+                            <th class="py-2 px-4 border-b">Patient Name</th>
                             <th class="py-2 px-4 border-b">Time</th>
-                            <th class="py-2 px-4 border-b">Reason</th>
-
                         </tr>
 
                     </thead>
@@ -240,7 +242,6 @@ function DoctorProfile() {
                             <tr>
                                 <td class="py-2 px-4 border-b">{element.patientName}</td>
                                 <td class="py-2 px-4 border-b">{element.time}</td>
-                                <td class="py-2 px-4 border-b">{element.reason}</td>
 
                             </tr>
 
@@ -253,10 +254,10 @@ function DoctorProfile() {
 
 
             <div
-                className="min-h-screen flex flex-col items-center justify-center bg-cover"
-                style={{
-                    backgroundImage: "url('https://source.unsplash.com/1600x900/?medical')",
-                }}
+                className=" min-h-screen flex flex-col items-center justify-center bg-cover"
+                // style={{
+                //     backgroundImage: "url('https://source.unsplash.com/1600x900/?medical')",
+                // }}
             >
                 <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-8 sm:px-6 lg:px-16 mt-4 mb-4">
                     <div className="max-w-md w-full space-y-8">
@@ -336,7 +337,7 @@ function DoctorProfile() {
                 </div>
                 <div>
                     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 mt-4 mb-4">
-                        <div className="max-w-md w-full space-y-8">
+                        <div className="w-full space-y-8">
                             <div>
                                 <h2 className="text-center text-3xl font-bold text-gray-800">
                                     Set Medical History
@@ -431,7 +432,6 @@ function DoctorProfile() {
                         </div>
                     </div>
                 </div>
-
 
             </div>
             <Link to={`/OrderCheckup`} className="p-5">

@@ -19,7 +19,6 @@ const bookAppointment = async (req, res) => {
   }
 
   if (!validApp) {
-      console.log("date reason");
       res.redirect("/book?error=AppointmentUnavailable");
   } else {
       const doctorSchedule = await getDoctorSchedule(req.body.doctorid);
@@ -47,9 +46,24 @@ const bookAppointment = async (req, res) => {
   }
 };
 
-const getAppointments = async (doctorid) => {
-  const query = 'SELECT time,date from appointments WHERE doctorid = ?';
-  const results = await executeQuery(query, [doctorid]);
+const getAppointments = async (id) => {
+  
+  const query = `SELECT appointments.* , doctors.firstName AS doctor
+  FROM appointments 
+  JOIN doctors ON appointments.doctorid = doctors.id
+  WHERE appointments.appointmentid = ?;`
+  const query2 = 'SELECT firstName from doctors WHERE id = ?';
+  const results = await executeQuery(query, [id]);
+  return results;
+};
+const getAllAppointments = async (id) => {
+  
+  const query = `SELECT appointments.* , doctors.firstName AS doctor
+  FROM appointments 
+  JOIN doctors ON appointments.doctorid = doctors.id
+  WHERE appointments.patientid = ?;`
+  const query2 = 'SELECT firstName from doctors WHERE id = ?';
+  const results = await executeQuery(query, [id]);
   return results;
 };
 
@@ -80,7 +94,6 @@ const createAppointment = (appointment) => {
 
     db.query(query,  (err, result) => {
       if (err) {
-        console.log("err")
         if (err.code === 'ER_DUP_ENTRY') {
           reject(new Error('This appointment time is already taken'));
         } else {
@@ -92,17 +105,13 @@ const createAppointment = (appointment) => {
     });
   });
 };
-const updateAppointment = (appointment) => {
-    const { id, doctorId, patientId, startTime, endTime } = appointment;
+const updateAppointment = (appointmentid) => {
+    // const { id, doctorId, patientId, startTime, endTime } = appointment;
     return new Promise((resolve, reject) => {
-      const query = `UPDATE appointments SET doctor_id = ${doctorId}, patient_id = ${patientId}, start_time = '${startTime}', end_time = '${endTime}' WHERE id = ${id}`;
+      const query = `UPDATE appointments SET paid = ${1} WHERE appointmentid= ${appointmentid}`;
       db.query(query, (err, result) => {
         if (err) {
-          if (err.code === 'ER_DUP_ENTRY') {
-            reject(new Error('This appointment time is already taken'));
-          } else {
-            reject(err);
-          }
+           reject(err);
         } else {
           resolve(result);
         }
@@ -141,10 +150,11 @@ const deleteAppointment = (id) => {
 };
 
 module.exports = {
-
+  getAllAppointments,
   bookAppointment,
   getAppointmentsByDoctorId,
   getAppointmentsByPatientId,
+  getAppointments,
   updateAppointment,
   deleteAppointment
 };

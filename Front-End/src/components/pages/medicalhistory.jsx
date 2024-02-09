@@ -5,11 +5,9 @@ import { useState, useEffect } from "react";
 export const MedicalHistory = () => {
     const [medicalHistory, setmedicalHistory] = useState([]);
     useEffect(() => {
-        fetch("http://localhost:3001/patienthistory",{
-            method: "POST",
-            body: JSON.stringify({
-                token: document.cookie
-            }),
+        fetch("http://localhost:3001/medhistory",{
+            method: "GET",
+            credentials: "include",
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -17,7 +15,7 @@ export const MedicalHistory = () => {
         })
             .then(res => res.json())
             .then(data => {
-                console.log(data.medHistory)
+                console.log(data.medHistory[0])
                 setmedicalHistory(data.medHistory)
             });
     }, [])
@@ -44,7 +42,7 @@ export const MedicalHistory = () => {
                             {medicalHistory.map((element) => (
 
                                 <tr>
-                                    <td class="py-2 px-4 border-b">{element.reason}</td>
+                                   <td class="py-2 px-4 border-b">{element.reason}</td>
                                     <td class="py-2 px-4 border-b">{element.date}</td>
                                     <td class="py-2 px-4 border-b">{element.diagnosisResult}</td>
 

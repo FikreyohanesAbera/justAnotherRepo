@@ -1,7 +1,6 @@
 import React from "react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
 
 export const Get_appointment = () => {
 
@@ -21,7 +20,6 @@ export const Get_appointment = () => {
   const day = currentDate.getDate();
   const month = currentDate.getMonth() + 1;
   const year = currentDate.getFullYear();
-  const navigate = useNavigate();
 
   const formattedDate = `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
 
@@ -44,9 +42,11 @@ export const Get_appointment = () => {
     console.log(JSON.stringify(formData))
     let sentData = formData;
     sentData["token"] = document.cookie;
+    console.log("submitted appointment", sentData)
     
-    fetch('http://localhost:3001/book', {
+    fetch('http://localhost:3001/book', { 
       method: 'POST',
+      credentials: "include",
       headers: {
         'Content-Type': 'application/json',
       },
@@ -59,12 +59,40 @@ export const Get_appointment = () => {
         if (data.customCode === 12) {
           setSubmitStatus('error');
 
-
         }
         else{
-          navigate('/payment');
-
           setSubmitStatus("success");
+          console.log("about to pay", data)
+          fetch('http://localhost:3001/payment/create-checkout-session', {
+            method: 'POST',
+            credentials: "include",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                appointment:
+                    {   
+                        appointmentid: data.appointmentid,
+                     
+                    },
+    
+                }),
+        })
+        .then(res => {
+          // console.log("response", res)
+            if (res.ok) return res.json()
+            else{
+          // console.log("from reponse failure")
+              return res.json().then(json => Promise.reject(json))
+            }
+            
+        })
+        .then(({url}) => {
+            window.location = url 
+        })
+        .catch(e => {
+            console.error(e.error)
+        })
         }
       })
       .catch(error => {
@@ -75,7 +103,7 @@ export const Get_appointment = () => {
 
 
   return (
-    <div className="container mx-auto bg-cyan-100">
+    <div className="min-h-screen w-screen p-5 bg-cyan-100">
       <h1 className="text-4xl font-bold text-center mb-8">Get Appointment</h1>
 
       {/* Appointment Form */}
